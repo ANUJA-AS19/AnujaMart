@@ -1,114 +1,360 @@
 #include <iostream>
+#include <fstream>
 #include <string>
-#include <vector>
-#include <iomanip>
+#include <cctype>
 
 using namespace std;
+
+// =====================================================
+// USER CLASS
+// =====================================================
 
 class User
 {
 private:
-    string name;
-    string email;
+    string username;
     string password;
-    string role;
 
 public:
-    User() {}
 
-    User(string n, string e, string p, string r)
+    // Default Constructor
+    User()
     {
-        name = n;
-        email = e;
+        username = "";
+        password = "";
+    }
+
+    // Parameterized Constructor
+    User(string u, string p)
+    {
+        username = u;
         password = p;
-        role = r;
     }
 
-    string getName()
+    // =================================================
+    // INPUT VALIDATION
+    // =================================================
+
+    bool validateInput()
     {
-        return name;
+        // Username length validation
+        if (username.length() < 3)
+        {
+            cout << "\nUsername must contain at least 3 characters!\n";
+            return false;
+        }
+
+        // Username should contain only letters
+        for (int i = 0; i < username.length(); i++)
+        {
+            if (!isalpha(username[i]))
+            {
+                cout << "\nUsername must contain only letters!\n";
+                return false;
+            }
+        }
+
+        // Password length validation
+        if (password.length() < 6)
+        {
+            cout << "\nPassword must contain at least 6 characters!\n";
+            return false;
+        }
+
+        return true;
     }
 
-    string getEmail()
+    // =================================================
+    // CHECK IF USER EXISTS
+    // =================================================
+
+    bool userExists()
     {
-        return email;
+        ifstream file("users.txt");
+
+        string storedUsername;
+        string storedPassword;
+
+        while (file >> storedUsername >> storedPassword)
+        {
+            if (storedUsername == username)
+            {
+                file.close();
+                return true;
+            }
+        }
+
+        file.close();
+        return false;
     }
 
-    string getPassword()
+    // =================================================
+    // REGISTER FUNCTION
+    // =================================================
+
+    bool registerUser()
     {
-        return password;
+        if (!validateInput())
+        {
+            return false;
+        }
+
+        if (userExists())
+        {
+            cout << "\nUser already exists!\n";
+            return false;
+        }
+
+        ofstream file("users.txt", ios::app);
+
+        if (!file)
+        {
+            cout << "\nUnable to open user database!\n";
+            return false;
+        }
+
+        file << username << " "
+             << password << endl;
+
+        file.close();
+
+        cout << "\nRegistration successful!\n";
+
+        return true;
     }
 
-    string getRole()
+    // =================================================
+    // LOGIN FUNCTION
+    // =================================================
+
+    bool loginUser()
     {
-        return role;
+        ifstream file("users.txt");
+
+        if (!file)
+        {
+            cout << "\nUser database not found!\n";
+            return false;
+        }
+
+        string storedUsername;
+        string storedPassword;
+
+        while (file >> storedUsername >> storedPassword)
+        {
+            if (storedUsername == username &&
+                storedPassword == password)
+            {
+                file.close();
+
+                cout << "\nLogin successful!\n";
+                cout << "Welcome to AnujaMart, "
+                     << username << "!\n";
+
+                return true;
+            }
+        }
+
+        file.close();
+
+        cout << "\nInvalid username or password!\n";
+
+        return false;
+    }
+
+    // =================================================
+    // USER SESSION
+    // =================================================
+
+    void userSession()
+    {
+        bool loggedIn = true;
+
+        int choice;
+
+        while (loggedIn)
+        {
+            cout << "\n====================================\n";
+            cout << "          ANUJAMART ACCOUNT\n";
+            cout << "====================================\n";
+
+            cout << "Logged in as: "
+                 << username << "\n\n";
+
+            cout << "1. View Profile\n";
+            cout << "2. Logout\n";
+
+            cout << "\nEnter your choice: ";
+            cin >> choice;
+
+            switch (choice)
+            {
+                case 1:
+                {
+                    cout << "\n------------------------------------\n";
+                    cout << "              PROFILE\n";
+                    cout << "------------------------------------\n";
+
+                    cout << "Username: "
+                         << username << endl;
+
+                    cout << "Account Status: Active\n";
+
+                    cout << "------------------------------------\n";
+
+                    break;
+                }
+
+                case 2:
+                {
+                    loggedIn = false;
+
+                    cout << "\nLogout successful!\n";
+                    cout << "Returning to main menu...\n";
+
+                    break;
+                }
+
+                default:
+                {
+                    cout << "\nInvalid choice!\n";
+                }
+            }
+        }
     }
 };
 
-class Product
+// =====================================================
+// SEED DATA
+// =====================================================
+
+void createSeedData()
 {
-private:
-    int id;
-    string name;
-    string description;
-    double price;
-    int stock;
-    string category;
+    ifstream checkFile("users.txt");
 
-public:
-    Product() {}
-
-    Product(int i, string n, string d, double p, int s, string c)
+    if (checkFile)
     {
-        id = i;
-        name = n;
-        description = d;
-        price = p;
-        stock = s;
-        category = c;
+        string username;
+        string password;
+
+        if (checkFile >> username >> password)
+        {
+            checkFile.close();
+            return;
+        }
+
+        checkFile.close();
     }
 
-    int getId()
+    ofstream file("users.txt");
+
+    if (!file)
     {
-        return id;
+        cout << "\nUnable to create user database!\n";
+        return;
     }
 
-    string getName()
-    {
-        return name;
-    }
+    // Default admin account
+    file << "admin admin123" << endl;
 
-    string getDescription()
-    {
-        return description;
-    }
+    file.close();
+}
 
-    double getPrice()
-    {
-        return price;
-    }
+// =====================================================
+// MAIN FUNCTION
+// =====================================================
 
-    int getStock()
-    {
-        return stock;
-    }
+int main()
+{
+    createSeedData();
 
-    string getCategory()
-    {
-        return category;
-    }
+    int choice;
 
-    void reduceStock(int quantity)
+    do
     {
-        stock = stock - quantity;
-    }
+        cout << "\n====================================\n";
+        cout << "          WELCOME TO ANUJAMART\n";
+        cout << "====================================\n";
 
-    void display()
-    {
-        cout << "\nProduct ID  : " << id;
-        cout << "\nName        : " << name;
-        cout << "\nDescription : " << description;
-        cout << "\nPrice       : Rs." << fixed << setprecision(2) << price;
-        cout << "\nStock       : " << stock;
-        cout << "\nCategory    : " << category;
-        cout << "\n--------------------------------------------\n";
+        cout << "1. Register\n";
+        cout << "2. Login\n";
+        cout << "3. Exit\n";
+
+        cout << "\nEnter your choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+            // =========================================
+            // REGISTER
+            // =========================================
+
+            case 1:
+            {
+                string username;
+                string password;
+
+                cout << "\nEnter username: ";
+                cin >> username;
+
+                cout << "Enter password: ";
+                cin >> password;
+
+                User user(username, password);
+
+                user.registerUser();
+
+                break;
+            }
+
+            // =========================================
+            // LOGIN
+            // =========================================
+
+            case 2:
+            {
+                string username;
+                string password;
+
+                cout << "\nEnter username: ";
+                cin >> username;
+
+                cout << "Enter password: ";
+                cin >> password;
+
+                User user(username, password);
+
+                if (user.loginUser())
+                {
+                    user.userSession();
+                }
+
+                break;
+            }
+
+            // =========================================
+            // EXIT
+            // =========================================
+
+            case 3:
+            {
+                cout << "\nThank you for using AnujaMart!\n";
+                cout << "Have a great day!\n";
+
+                break;
+            }
+
+            // =========================================
+            // INVALID OPTION
+            // =========================================
+
+            default:
+            {
+                cout << "\nInvalid choice! Please try again.\n";
+            }
+        }
+
+    } while (choice != 3);
+
+    return 0;
+} 

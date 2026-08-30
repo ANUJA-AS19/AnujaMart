@@ -1,13 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cctype>
 
 using namespace std;
-
-// =====================================================
-// USER CLASS
-// =====================================================
 
 class User
 {
@@ -16,45 +11,26 @@ private:
     string password;
 
 public:
-
-    // Default Constructor
     User()
     {
         username = "";
         password = "";
     }
 
-    // Parameterized Constructor
     User(string u, string p)
     {
         username = u;
         password = p;
     }
 
-    // =================================================
-    // INPUT VALIDATION
-    // =================================================
-
     bool validateInput()
     {
-        // Username length validation
         if (username.length() < 3)
         {
             cout << "\nUsername must contain at least 3 characters!\n";
             return false;
         }
 
-        // Username should contain only letters
-        for (int i = 0; i < username.length(); i++)
-        {
-            if (!isalpha(username[i]))
-            {
-                cout << "\nUsername must contain only letters!\n";
-                return false;
-            }
-        }
-
-        // Password length validation
         if (password.length() < 6)
         {
             cout << "\nPassword must contain at least 6 characters!\n";
@@ -63,10 +39,6 @@ public:
 
         return true;
     }
-
-    // =================================================
-    // CHECK IF USER EXISTS
-    // =================================================
 
     bool userExists()
     {
@@ -87,10 +59,6 @@ public:
         file.close();
         return false;
     }
-
-    // =================================================
-    // REGISTER FUNCTION
-    // =================================================
 
     bool registerUser()
     {
@@ -122,10 +90,6 @@ public:
 
         return true;
     }
-
-    // =================================================
-    // LOGIN FUNCTION
-    // =================================================
 
     bool loginUser()
     {
@@ -161,10 +125,6 @@ public:
 
         return false;
     }
-
-    // =================================================
-    // USER SESSION
-    // =================================================
 
     void userSession()
     {
@@ -224,10 +184,6 @@ public:
     }
 };
 
-// =====================================================
-// SEED DATA
-// =====================================================
-
 void createSeedData()
 {
     ifstream checkFile("users.txt");
@@ -254,15 +210,10 @@ void createSeedData()
         return;
     }
 
-    // Default admin account
     file << "admin admin123" << endl;
 
     file.close();
 }
-
-// =====================================================
-// MAIN FUNCTION
-// =====================================================
 
 int main()
 {
@@ -280,15 +231,11 @@ int main()
         cout << "2. Login\n";
         cout << "3. Exit\n";
 
-        cout << "\nEnter your choice: ";
+        cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice)
         {
-            // =========================================
-            // REGISTER
-            // =========================================
-
             case 1:
             {
                 string username;
@@ -306,10 +253,6 @@ int main()
 
                 break;
             }
-
-            // =========================================
-            // LOGIN
-            // =========================================
 
             case 2:
             {
@@ -332,10 +275,6 @@ int main()
                 break;
             }
 
-            // =========================================
-            // EXIT
-            // =========================================
-
             case 3:
             {
                 cout << "\nThank you for using AnujaMart!\n";
@@ -343,10 +282,6 @@ int main()
 
                 break;
             }
-
-            // =========================================
-            // INVALID OPTION
-            // =========================================
 
             default:
             {
@@ -357,4 +292,4 @@ int main()
     } while (choice != 3);
 
     return 0;
-} 
+}
